@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "742023454307",
+    "project_id": "platmania-web-integration",
+    "storage_bucket": "platmania-web-integration.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:742023454307:android:471727b64362e8f1fce256",
+        "android_client_info": {
+          "package_name": "com.VinceW.Platmania"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDFOtuMM5_x-Ntg6tyN98w5pmTcP0S54gk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
