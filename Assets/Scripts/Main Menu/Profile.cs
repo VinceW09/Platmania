@@ -1,10 +1,6 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Globalization;
 using System.Text;
 using TMPro;
-using Unity.IO.LowLevel.Unsafe;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
@@ -87,13 +83,13 @@ public class Profile : MonoBehaviour
     {
         if (inputFieldPlaceholder.text == "Enter nickname...")
         {
-            playerData.nickName = inputField.text.ToUpper();
+            playerData.nickName = inputField.text;
             PlayerPrefs.SetString("player_nickname", playerData.nickName);
         }
 
         if (inputFieldPlaceholder.text == "Enter name...")
         {
-            playerData.name = inputField.text.ToUpper();
+            playerData.name = inputField.text;
             PlayerPrefs.SetString("player_name", playerData.name);
         }
 
