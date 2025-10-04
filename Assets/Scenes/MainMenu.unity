@@ -5445,7 +5445,7 @@ GameObject:
   - component: {fileID: 637883118}
   - component: {fileID: 637883120}
   m_Layer: 0
-  m_Name: FirebaseInit
+  m_Name: Firebase
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5487,7 +5487,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 637883117}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6477637f7dd21d74caada4dcb6025185, type: 3}
+  m_Script: {fileID: 11500000, guid: 888b8646f07a77b4fb57787065434cd5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &669196413

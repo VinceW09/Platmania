@@ -4,12 +4,14 @@ using Firebase.Extensions;
 using Firebase.Firestore;
 using UnityEngine;
 
-public class FirebaseInit : MonoBehaviour
+public class FirebaseInitializer : MonoBehaviour
 {
-    public static FirebaseInit Singleton { get; private set; }
+    public static FirebaseInitializer Singleton { get; private set; }
 
     public delegate void FirestoreAvailableEvent(FirebaseFirestore database);
     public event FirestoreAvailableEvent OnFirestoreAvailable;
+
+    private FirebaseApp app;
 
     private void Awake()
     {
@@ -22,6 +24,8 @@ public class FirebaseInit : MonoBehaviour
         {
             if (task.Result == DependencyStatus.Available)
             {
+                app = FirebaseApp.DefaultInstance;
+
                 if (OnFirestoreAvailable != null)
                 {
                     OnFirestoreAvailable(FirebaseFirestore.DefaultInstance);
