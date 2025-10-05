@@ -4,10 +4,10 @@ using Firebase.Firestore;
 public struct UserData
 {
     [FirestoreProperty]
-    public string UserName { get; set; }
+    public string Username { get; set; }
 
     [FirestoreProperty]
-    public string RealName { get; set; }
+    public string Name { get; set; }
 
     [FirestoreProperty]
     public string FaceId { get; set; }
