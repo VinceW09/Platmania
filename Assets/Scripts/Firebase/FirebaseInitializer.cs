@@ -22,6 +22,8 @@ public class FirebaseInitializer : MonoBehaviour
     {
         FirebaseApp.CheckAndFixDependenciesAsync().ContinueWithOnMainThread(task =>
         {
+            Debug.Log(task.Result);
+
             if (task.Result == DependencyStatus.Available)
             {
                 app = FirebaseApp.DefaultInstance;

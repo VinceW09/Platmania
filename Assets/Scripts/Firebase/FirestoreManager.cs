@@ -1,9 +1,6 @@
 using Firebase.Extensions;
 using Firebase.Firestore;
-using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
-using Unity.Mathematics;
 using UnityEngine;
 
 public class FirestoreManager : MonoBehaviour
@@ -17,59 +14,49 @@ public class FirestoreManager : MonoBehaviour
     private const string USERNAME = "Username";
     private const string NAME = "Name";
 
+    private void Awake()
+    {
+        Singleton = this;
+    }
+
     private void Start()
     {
         FirebaseInitializer.Singleton.OnFirestoreAvailable += OnFirebaseAvailable_Callback;
     }
 
-    public void SetLocalUserData(UserData userData)
+    public async Task SetLocalUserData(UserData userData)
     {
         DocumentReference userRef = database.Collection("users").Document(SystemInfo.deviceUniqueIdentifier);
-        userRef.SetAsync(userData).ContinueWithOnMainThread(task =>
-        {
-            Debug.Log($"Updated userdata of user ({SystemInfo.deviceUniqueIdentifier})");
-        });
+        await userRef.SetAsync(userData);
+        
+        Debug.Log($"Updated userdata of user ({SystemInfo.deviceUniqueIdentifier})");
+        
     }
 
-    public UserData GetLocalUserData()
+    public async Task<(bool wasSuccessful, UserData userData)> GetLocalUserDataAsync()
     {
-        UserData userData = new UserData();
-
         DocumentReference userRef = database.Collection("users").Document(SystemInfo.deviceUniqueIdentifier);
-        userRef.GetSnapshotAsync().ContinueWithOnMainThread(task =>
+        var snapshot = await userRef.GetSnapshotAsync();
+        
+        Debug.Log("Getting local user data");
+
+        if (snapshot.Exists)
         {
-            if (task.Result.Exists)
-            {
-                foreach (var item in task.Result.ToDictionary())
-                {
-                    switch (item.Key)
-                    {
-                        case USERNAME:
-                            userData.Username = item.Value.ToString();
-                            break;
-                        case NAME:
-                            userData.Name = item.Value.ToString();
-                            break;
-                        case COLOR_ID:
-                            userData.ColorId = item.Value.ToString();
-                            break;
-                        case FACE_ID:
-                            userData.FaceId = item.Value.ToString();
-                            break;
-                        default:
-                            Debug.LogError($"{item.Key} does not exist!");
-                            break;
-                    }
-                }
+            Debug.Log("User data found.");
+            UserData userData = snapshot.ConvertTo<UserData>();
 
-                Debug.Log($"Userdata for user {userData.Username}:\n" +
-                    $"Name: {userData.Name}\n" +
-                    $"ColorId: {userData.ColorId}\n" +
-                    $"FaceId: {userData.FaceId}");
-            }
-        });
+            Debug.Log($"Userdata for user {userData.Username}:\n" +
+                      $"Name: {userData.Name}\n" +
+                      $"ColorId: {userData.ColorId}\n" +
+                      $"FaceId: {userData.FaceId}");
 
-        return userData;
+            return (true, userData);
+        }
+        else
+        {
+            Debug.LogWarning("User document does not exist.");
+            return (false, new UserData());
+        }
     }
 
     public async Task<bool> IsUsernameAvailable(string username)
@@ -77,7 +64,9 @@ public class FirestoreManager : MonoBehaviour
         Query query = database.Collection("users").WhereEqualTo(USERNAME, username);
         QuerySnapshot snapshot = await query.GetSnapshotAsync();
 
-        return snapshot.Count == 0;
+        var (isSuccessful, userData) = await GetLocalUserDataAsync();
+
+        return snapshot.Count == ((userData.Username == username) ? 1 : 0);
 
         //needs to await when called
     }
