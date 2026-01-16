@@ -18,7 +18,7 @@ public class ProfileUI : MonoBehaviour
     {
         ShowProfilePage();
         errorText.gameObject.SetActive(false);
-        playerId.text = "PLAYER ID: " + SystemInfo.deviceUniqueIdentifier;
+        playerId.text = "PLAYER ID: " + FirestoreManager.Singleton.GetCurrentUser().UserId;
     }
 
     public void ShowProfilePage()
@@ -36,9 +36,9 @@ public class ProfileUI : MonoBehaviour
         editPlayerPage.SetActive(false);
     }
 
-    public async void OnBackEditProfileInfoPage()
+    public void OnBackEditProfileInfoPage()
     {
-        ResultResponse result = await ProfileData.Singleton.SaveProfileInfo();
+        ResultResponse result = ProfileData.Singleton.SaveProfileInfo();
 
         if (result.isSuccessfull)
         {

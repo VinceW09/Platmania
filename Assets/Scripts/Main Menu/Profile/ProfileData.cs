@@ -1,3 +1,5 @@
+using Firebase.Auth;
+using Firebase.Firestore;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
@@ -28,30 +30,31 @@ public class ProfileData : MonoBehaviour
         FirebaseInitializer.Singleton.OnFirestoreAvailable += OnFirestoreAvailable_Callback;
     }
 
-    private void OnFirestoreAvailable_Callback(Firebase.Firestore.FirebaseFirestore database)
+    private void OnFirestoreAvailable_Callback(FirebaseFirestore database, FirebaseUser user)
     {
         Debug.Log("Got firestore");
         LoadUserData();
     }
 
-    private async void LoadUserData()
+    private void LoadUserData()
     {
-        var (isSuccessful, userData) = await FirestoreManager.Singleton.GetLocalUserDataAsync();
-
-        this.userData = userData;
-
-        if (this.userData.Name == null) this.userData.Name = "Name";
-        if (this.userData.ColorId == null) this.userData.ColorId = "yellow";
-        if (this.userData.FaceId == null) this.userData.FaceId = "happy";
-        if (this.userData.Username == null)
+        FirestoreManager.Singleton.GetLocalUserData(userData =>
         {
-            this.userData.Username = GenerateUniqueUsername();
-            await FirestoreManager.Singleton.SetLocalUserData(this.userData);
-        }
+            this.userData = userData;
 
-        Debug.Log(this.userData);
+            if (this.userData.Name == null) this.userData.Name = "Name";
+            if (this.userData.ColorId == null) this.userData.ColorId = "yellow";
+            if (this.userData.FaceId == null) this.userData.FaceId = "happy";
+            if (this.userData.Username == null)
+            {
+                this.userData.Username = GenerateUniqueUsername();
+                FirestoreManager.Singleton.SetLocalUserData(this.userData);
+            }
 
-        UpdatePreviewData();
+            Debug.Log(this.userData.Username);
+
+            UpdatePreviewData();
+        });
     }
 
     private void UpdatePreviewData()
@@ -68,13 +71,13 @@ public class ProfileData : MonoBehaviour
         }
     }
 
-    public async Task<ResultResponse> SaveProfileInfo()
+    public ResultResponse SaveProfileInfo()
     {
         ResultResponse result = new ResultResponse();
 
         if (usernameField.text.Length > 2 && usernameField.text.Length <= 15)
         {
-            if (await FirestoreManager.Singleton.IsUsernameAvailable(userData.Username) == true)
+            if (FirestoreManager.Singleton.IsUsernameAvailable(userData.Username) == true)
             {
                 userData.Username = usernameField.text;
             }
@@ -95,7 +98,7 @@ public class ProfileData : MonoBehaviour
         userData.Name = nameField.text;
 
         UpdatePreviewData();
-        await FirestoreManager.Singleton.SetLocalUserData(userData);
+        FirestoreManager.Singleton.SetLocalUserData(userData);
 
         result.isSuccessfull = true;
         return result;
@@ -127,7 +130,7 @@ public class ProfileData : MonoBehaviour
 
         string uniqueUsername = stringBuilder.ToString();
 
-        if (FirestoreManager.Singleton.IsUsernameAvailable(uniqueUsername).Result == false)
+        if (FirestoreManager.Singleton.IsUsernameAvailable(uniqueUsername) == false)
         {
             uniqueUsername = GenerateUniqueUsername();
         }

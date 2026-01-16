@@ -73,3 +73,8 @@ crashlytics-build.properties
 # Temporary auto-generated Android Assets
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
+
+# API Keys
+/Assets/Other/Hidden/
+/Assets/Plugins/Android/
+Assets/Plugins/Android/FirebaseApp.androidlib/res/values/google-services.xml

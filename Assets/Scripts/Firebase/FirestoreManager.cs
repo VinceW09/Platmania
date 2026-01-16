@@ -1,13 +1,16 @@
+using Firebase.Auth;
 using Firebase.Extensions;
 using Firebase.Firestore;
 using System.Threading.Tasks;
 using UnityEngine;
+using static Unity.Collections.Unicode;
 
 public class FirestoreManager : MonoBehaviour
 {
     public static FirestoreManager Singleton {  get; private set; }
 
     private FirebaseFirestore database;
+    private FirebaseUser user;
 
     private const string COLOR_ID = "ColorId";
     private const string FACE_ID = "FaceId";
@@ -24,55 +27,90 @@ public class FirestoreManager : MonoBehaviour
         FirebaseInitializer.Singleton.OnFirestoreAvailable += OnFirebaseAvailable_Callback;
     }
 
-    public async Task SetLocalUserData(UserData userData)
+    public void SetLocalUserData(UserData userData)
     {
-        DocumentReference userRef = database.Collection("users").Document(SystemInfo.deviceUniqueIdentifier);
-        await userRef.SetAsync(userData);
-        
-        Debug.Log($"Updated userdata of user ({SystemInfo.deviceUniqueIdentifier})");
-        
+        DocumentReference userRef = database.Collection("users").Document(user.UserId);
+        userRef.SetAsync(userData).ContinueWithOnMainThread(task =>
+        {
+            if (task.IsCompleted)
+            {
+                Debug.Log($"Updated userdata of user ({user.UserId})");
+            }
+            else
+            {
+                Debug.LogWarning("Failed to set data");
+            }
+        });
     }
 
-    public async Task<(bool wasSuccessful, UserData userData)> GetLocalUserDataAsync()
+    public void GetLocalUserData(System.Action<UserData> callback) 
     {
-        DocumentReference userRef = database.Collection("users").Document(SystemInfo.deviceUniqueIdentifier);
-        var snapshot = await userRef.GetSnapshotAsync();
+        DocumentReference userRef = database.Collection("users").Document(user.UserId);
         
         Debug.Log("Getting local user data");
+        UserData userData = new UserData();
 
-        if (snapshot.Exists)
+        userRef.GetSnapshotAsync().ContinueWithOnMainThread(task =>
         {
-            Debug.Log("User data found.");
-            UserData userData = snapshot.ConvertTo<UserData>();
+            if (task.IsFaulted || task.IsCanceled)
+            {
+                callback?.Invoke(new UserData());
+                return;
+            }
 
-            Debug.Log($"Userdata for user {userData.Username}:\n" +
-                      $"Name: {userData.Name}\n" +
-                      $"ColorId: {userData.ColorId}\n" +
-                      $"FaceId: {userData.FaceId}");
+            DocumentSnapshot snapshot = task.Result;
 
-            return (true, userData);
-        }
-        else
-        {
-            Debug.LogWarning("User document does not exist.");
-            return (false, new UserData());
-        }
+            userData = snapshot.Exists ? snapshot.ConvertTo<UserData>() : new UserData();
+
+            if (snapshot.Exists)
+            {
+                Debug.Log("User data found:");
+                Debug.Log($"Userdata for user {userData.Username} found:\n" +
+                          $"UserId: {user.UserId}\n" +
+                          $"Name: {userData.Name}\n" +
+                          $"ColorId: {userData.ColorId}\n" +
+                          $"FaceId: {userData.FaceId}");
+
+            }
+            else
+            {
+                Debug.LogWarning("User document does not exist.");
+            }
+
+            callback?.Invoke(userData);
+        });
     }
 
-    public async Task<bool> IsUsernameAvailable(string username)
+    public bool IsUsernameAvailable(string username) // Not perfect
     {
         Query query = database.Collection("users").WhereEqualTo(USERNAME, username);
-        QuerySnapshot snapshot = await query.GetSnapshotAsync();
+        QuerySnapshot snapshot;
 
-        var (isSuccessful, userData) = await GetLocalUserDataAsync();
+        query.GetSnapshotAsync().ContinueWithOnMainThread(task =>
+        {
+            Debug.Log($"Checking if username '{username}' is taken.");
+            snapshot = task.Result;
 
-        return snapshot.Count == ((userData.Username == username) ? 1 : 0);
+            bool isAvailable = true;
+            GetLocalUserData(userData =>
+            {
+                bool isAvailable = snapshot.Count == ((userData.Username == username) ? 1 : 0);
+            });
 
-        //needs to await when called
+            return isAvailable;
+        });
+
+        return true; // SHOULD NOT HAPPEN
     }
 
-    private void OnFirebaseAvailable_Callback(FirebaseFirestore database)
+    private void OnFirebaseAvailable_Callback(FirebaseFirestore database, FirebaseUser user)
     {
         this.database = database;
+        this.user = user;
+    }
+
+    public FirebaseUser GetCurrentUser()
+    {
+        return user;
     }
 }
