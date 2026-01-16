@@ -77,4 +77,5 @@ crashlytics-build.properties
 # API Keys
 /Assets/Other/Hidden/
 /Assets/Plugins/Android/
-Assets/Plugins/Android/FirebaseApp.androidlib/res/values/google-services.xml
+/Assets/Plugins/Android/FirebaseApp.androidlib/res/values/google-services.xml
+*/google-services.xml
