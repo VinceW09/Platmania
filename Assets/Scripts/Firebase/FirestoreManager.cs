@@ -54,6 +54,7 @@ public class FirestoreManager : MonoBehaviour
         {
             if (task.IsFaulted || task.IsCanceled)
             {
+                Debug.LogWarning("Failed to fetch UserData.");
                 callback?.Invoke(new UserData());
                 return;
             }

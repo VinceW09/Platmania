@@ -137,4 +137,9 @@ public class ProfileData : MonoBehaviour
 
         return uniqueUsername;
     }
+
+    public UserData GetLocalUserData()
+    {
+        return userData;
+    }
 }

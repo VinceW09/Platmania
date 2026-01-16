@@ -29,8 +29,8 @@ public class Player : MonoBehaviour
     {
         health = startingHealth;
 
-        playerColor = PlayerPrefs.GetString("player_color_id");
-        playerFace = PlayerPrefs.GetString("player_face_id");
+        playerColor = ProfileData.Singleton.GetLocalUserData().ColorId;
+        playerFace = ProfileData.Singleton.GetLocalUserData().FaceId;
 
         color.sprite = GetPlayerColorSprite(playerColor);
         face.sprite = GetPlayerFaceSprite(playerFace);
