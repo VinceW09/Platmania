@@ -14,4 +14,7 @@ public struct UserData
 
     [FirestoreProperty]
     public string ColorId { get; set; }
+
+    [FirestoreProperty]
+    public string UserId { get; set; }
 }

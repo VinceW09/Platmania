@@ -1,22 +1,13 @@
 using Firebase.Auth;
 using Firebase.Firestore;
-using System.Collections.Generic;
 using System.Text;
-using System.Threading.Tasks;
-using TMPro;
 using UnityEngine;
 
 public class ProfileData : MonoBehaviour
 {
     public static ProfileData Singleton { get; private set; }
 
-    [SerializeField] private TMP_InputField usernameField;
-    [SerializeField] private TMP_InputField nameField;
-
-    [SerializeField] private TextMeshProUGUI usernameText;
-    [SerializeField] private TextMeshProUGUI nameText;
-
-    [SerializeField] private List<PlayerPreview> playerPreviews;
+    [SerializeField] private ProfileUI profileUI;
 
     private UserData userData;
 
@@ -32,7 +23,7 @@ public class ProfileData : MonoBehaviour
 
     private void OnFirestoreAvailable_Callback(FirebaseFirestore database, FirebaseUser user)
     {
-        Debug.Log("Got firestore");
+        Debug.Log("ProfileData getting firestore");
         LoadUserData();
     }
 
@@ -40,83 +31,76 @@ public class ProfileData : MonoBehaviour
     {
         FirestoreManager.Singleton.GetLocalUserData(userData =>
         {
-            this.userData = userData;
-
-            if (this.userData.Name == null) this.userData.Name = "Name";
-            if (this.userData.ColorId == null) this.userData.ColorId = "yellow";
-            if (this.userData.FaceId == null) this.userData.FaceId = "happy";
-            if (this.userData.Username == null)
+            if (userData.UserId == null)
             {
-                this.userData.Username = GenerateUniqueUsername();
-                FirestoreManager.Singleton.SetLocalUserData(this.userData);
+                this.userData = GeneratePlaceholderData(true);
+                profileUI.SetPreviewData(this.userData);
+                return;
             }
 
-            Debug.Log(this.userData.Username);
+            if (userData.Username == null)
+            {
+                this.userData = GeneratePlaceholderData(false, userData.UserId);
+                FirestoreManager.Singleton.SetLocalUserData(this.userData);
+            }
+            else
+            {
+                this.userData = userData;
+                Debug.Log(this.userData.Username);
+            }
 
-            UpdatePreviewData();
+            profileUI.SetPreviewData(this.userData);
         });
     }
 
-    private void UpdatePreviewData()
-    {
-        usernameField.text = userData.Username;
-        nameField.text = userData.Name;
-
-        usernameText.text = userData.Username;
-        nameText.text = userData.Name;
-
-        foreach (PlayerPreview playerPreview in playerPreviews)
-        {
-            playerPreview.SetPlayer(userData.ColorId, userData.FaceId);
-        }
-    }
-
-    public ResultResponse SaveProfileInfo()
+    public ResultResponse SaveUserData(UserData newUserData)
     {
         ResultResponse result = new ResultResponse();
 
-        if (usernameField.text.Length > 2 && usernameField.text.Length <= 15)
+        if (newUserData.Username != userData.Username)
         {
-            if (FirestoreManager.Singleton.IsUsernameAvailable(userData.Username) == true)
+            if (newUserData.Username.Length > 2 && newUserData.Username.Length <= 15)
             {
-                userData.Username = usernameField.text;
+                if (FirestoreManager.Singleton.IsUsernameAvailable(newUserData.Username) == true)
+                {
+                    Debug.Log("Username change is valid.");
+                }
+                else
+                {
+                    result.isSuccessfull = false;
+                    result.error = "Username taken";
+                    return result;
+                }
             }
             else
             {
                 result.isSuccessfull = false;
-                result.error = "Username taken";
+                result.error = "Must be 3-15 characters long";
                 return result;
             }
         }
-        else
-        {
-            result.isSuccessfull = false;
-            result.error = "Must be 3-15 characters long";
-            return result;
-        }
 
-        userData.Name = nameField.text;
-
-        UpdatePreviewData();
+        userData = newUserData;
         FirestoreManager.Singleton.SetLocalUserData(userData);
 
         result.isSuccessfull = true;
         return result;
     }
 
-    public void SetPlayerColorButton(SpriteSO spriteSO)
+    private UserData GeneratePlaceholderData(bool isOffline, string UserId = null)
     {
-        userData.ColorId = spriteSO.id;
-        UpdatePreviewData();
+        UserData userData = new UserData();
+
+        userData.UserId= UserId;
+        userData.Name = "Name";
+        userData.ColorId = "yellow";
+        userData.FaceId = "happy";
+        userData.Username = GenerateUniqueUsername(isOffline);
+
+        return userData;
     }
 
-    public void SetPlayerFaceButton(SpriteSO spriteSO)
-    {
-        userData.FaceId = spriteSO.id;
-        UpdatePreviewData();
-    }
-
-    private string GenerateUniqueUsername()
+    private string GenerateUniqueUsername(bool isOffline)
     {
         StringBuilder stringBuilder = new StringBuilder();
         const string authorizedCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -130,9 +114,11 @@ public class ProfileData : MonoBehaviour
 
         string uniqueUsername = stringBuilder.ToString();
 
+        if (isOffline) return uniqueUsername;
+
         if (FirestoreManager.Singleton.IsUsernameAvailable(uniqueUsername) == false)
         {
-            uniqueUsername = GenerateUniqueUsername();
+            uniqueUsername = GenerateUniqueUsername(isOffline);
         }
 
         return uniqueUsername;
@@ -140,6 +126,12 @@ public class ProfileData : MonoBehaviour
 
     public UserData GetLocalUserData()
     {
+        if (userData.Username == null)
+        {
+            Debug.LogWarning("No connection -> Offline mode");
+            userData = GeneratePlaceholderData(true);
+        }
+
         return userData;
     }
 }

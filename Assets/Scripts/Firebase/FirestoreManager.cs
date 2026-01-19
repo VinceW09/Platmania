@@ -1,9 +1,7 @@
 using Firebase.Auth;
 using Firebase.Extensions;
 using Firebase.Firestore;
-using System.Threading.Tasks;
 using UnityEngine;
-using static Unity.Collections.Unicode;
 
 public class FirestoreManager : MonoBehaviour
 {
@@ -67,7 +65,7 @@ public class FirestoreManager : MonoBehaviour
             {
                 Debug.Log("User data found:");
                 Debug.Log($"Userdata for user {userData.Username} found:\n" +
-                          $"UserId: {user.UserId}\n" +
+                          $"UserId: {userData.UserId}\n" +
                           $"Name: {userData.Name}\n" +
                           $"ColorId: {userData.ColorId}\n" +
                           $"FaceId: {userData.FaceId}");
@@ -76,6 +74,7 @@ public class FirestoreManager : MonoBehaviour
             else
             {
                 Debug.LogWarning("User document does not exist.");
+                userData.UserId = user.UserId;
             }
 
             callback?.Invoke(userData);
@@ -106,6 +105,8 @@ public class FirestoreManager : MonoBehaviour
 
     private void OnFirebaseAvailable_Callback(FirebaseFirestore database, FirebaseUser user)
     {
+        Debug.Log("FirestoreManager getting data");
+
         this.database = database;
         this.user = user;
     }

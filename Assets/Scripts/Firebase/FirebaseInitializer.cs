@@ -52,6 +52,7 @@ public class FirebaseInitializer : MonoBehaviour
                 else
                 {
                     Debug.LogError("Failed to get App Check token: " + task2.Exception);
+                    return;
                 }
 
                 //Continue
@@ -94,7 +95,8 @@ public class FirebaseInitializer : MonoBehaviour
                     //Give 'GO' for all other scripts
                     if (OnFirestoreAvailable != null)
                     {
-                        OnFirestoreAvailable(FirebaseFirestore.DefaultInstance, user);
+                        Debug.Log("Calling Event to activate every script");
+                        OnFirestoreAvailable?.Invoke(FirebaseFirestore.DefaultInstance, user);
                     }
                 }
                 else

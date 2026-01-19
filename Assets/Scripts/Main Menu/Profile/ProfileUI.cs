@@ -1,4 +1,4 @@
-using System;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
@@ -12,13 +12,60 @@ public class ProfileUI : MonoBehaviour
     [SerializeField] private GameObject editColorPage;
 
     [SerializeField] private TextMeshProUGUI errorText;
+
+    [SerializeField] private TMP_InputField usernameField;
+    [SerializeField] private TMP_InputField nameField;
+
+    [SerializeField] private TextMeshProUGUI usernameText;
+    [SerializeField] private TextMeshProUGUI nameText;
+
     [SerializeField] private TextMeshProUGUI playerId;
 
-    private void OnEnable()
+    [SerializeField] private List<PlayerPreview> playerPreviews;
+
+    private UserData previewUserData;
+
+    private void Awake()
     {
+        previewUserData = ProfileData.Singleton.GetLocalUserData();
+        Debug.Log(previewUserData);
+
         ShowProfilePage();
         errorText.gameObject.SetActive(false);
-        playerId.text = "PLAYER ID: " + FirestoreManager.Singleton.GetCurrentUser().UserId;
+
+        playerId.text = "PLAYER ID: " + (previewUserData.UserId ?? "FAILED TO FETCH ID [OFFLINE]");
+    }
+
+    public void SetPreviewData(UserData userData)
+    {
+        previewUserData = userData;
+        UpdatePreviewData();
+    }
+
+    private void UpdatePreviewData()
+    {
+        usernameField.text = previewUserData.Username;
+        nameField.text = previewUserData.Name;
+
+        usernameText.text = previewUserData.Username;
+        nameText.text = previewUserData.Name;
+
+        foreach (PlayerPreview playerPreview in playerPreviews)
+        {
+            playerPreview.SetPlayer(previewUserData.ColorId, previewUserData.FaceId);
+        }
+    }
+
+    public void SetPlayerColorButton(SpriteSO spriteSO)
+    {
+        previewUserData.ColorId = spriteSO.id;
+        UpdatePreviewData();
+    }
+
+    public void SetPlayerFaceButton(SpriteSO spriteSO)
+    {
+        previewUserData.FaceId = spriteSO.id;
+        UpdatePreviewData();
     }
 
     public void ShowProfilePage()
@@ -38,10 +85,14 @@ public class ProfileUI : MonoBehaviour
 
     public void OnBackEditProfileInfoPage()
     {
-        ResultResponse result = ProfileData.Singleton.SaveProfileInfo();
+        previewUserData.Username = usernameField.text;
+        previewUserData.Name = nameField.text;
+
+        ResultResponse result = ProfileData.Singleton.SaveUserData(previewUserData);
 
         if (result.isSuccessfull)
         {
+            UpdatePreviewData();
             ShowProfilePage();
         }
         else
