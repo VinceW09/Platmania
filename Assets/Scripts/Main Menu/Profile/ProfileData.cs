@@ -91,7 +91,7 @@ public class ProfileData : MonoBehaviour
     {
         UserData userData = new UserData();
 
-        userData.UserId= UserId;
+        userData.UserId = UserId;
         userData.Name = "Name";
         userData.ColorId = "yellow";
         userData.FaceId = "happy";
@@ -126,7 +126,7 @@ public class ProfileData : MonoBehaviour
 
     public UserData GetLocalUserData()
     {
-        if (userData.Username == null)
+        if (userData.UserId == null)
         {
             Debug.LogWarning("No connection -> Offline mode");
             userData = GeneratePlaceholderData(true);

@@ -21138,11 +21138,13 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "VERSION: 0.6.6.1 [2025-05-22]\n   - Fixed dashing bug\n\nVERSION: 0.6.6
-    [2025-05-22]\n   - Reworked player movement\n   - Fixed multiplayer (it was broken
-    since 0.6.1)\n   - Finally decided to bin WebGL multiplayer, \n      it's now
-    gone. (But WebGL singleplayer will \n      probably stay)\n\nVERSION: 0.6.5 [2025-05-16]\n  
-    - Changed 1 build setting (might fix web\n      issue)\n\nVERSION: 0.6.4 [2025-04-15]\n  
+  m_text: "VERSION 0.7.0.2 [2026-01-20]\n   - Fixed bug, now firestore works\n\nVERSION
+    0.7 [2026-01-20]\n   - Added cloud firestore\n   - Profiles now stored in cloud\n\nVERSION:
+    0.6.6.1 [2025-05-22]\n   - Fixed dashing bug\n\nVERSION: 0.6.6 [2025-05-22]\n  
+    - Reworked player movement\n   - Fixed multiplayer (it was broken since 0.6.1)\n  
+    - Finally decided to bin WebGL multiplayer, \n      it's now gone. (But WebGL
+    singleplayer will \n      probably stay)\n\nVERSION: 0.6.5 [2025-05-16]\n   -
+    Changed 1 build setting (might fix web\n      issue)\n\nVERSION: 0.6.4 [2025-04-15]\n  
     - Potential web multiplayer fix, again...\n      *might break game, consider
     downgrade*\n\nVERSION: 0.6.3 [2025-04-15]\n   - Potential web multiplayer fix\n     
     *might break game, consider downgrade*\n\nVERSION: 0.6.2 [2025-04-10]\n   - Potential
@@ -24417,8 +24419,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -1275}
-  m_SizeDelta: {x: 0, y: 2550}
+  m_AnchoredPosition: {x: 0, y: -1550}
+  m_SizeDelta: {x: 0, y: 3100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1684253245
 GameObject:

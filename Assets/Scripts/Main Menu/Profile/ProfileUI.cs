@@ -33,7 +33,7 @@ public class ProfileUI : MonoBehaviour
         ShowProfilePage();
         errorText.gameObject.SetActive(false);
 
-        playerId.text = "PLAYER ID: " + (previewUserData.UserId ?? "FAILED TO FETCH ID [OFFLINE]");
+        UpdatePreviewData();
     }
 
     public void SetPreviewData(UserData userData)
@@ -49,6 +49,8 @@ public class ProfileUI : MonoBehaviour
 
         usernameText.text = previewUserData.Username;
         nameText.text = previewUserData.Name;
+
+        playerId.text = "PLAYER ID: " + (previewUserData.UserId ?? "FAILED TO FETCH ID [OFFLINE]");
 
         foreach (PlayerPreview playerPreview in playerPreviews)
         {
@@ -77,6 +79,9 @@ public class ProfileUI : MonoBehaviour
 
     public void ShowEditProfileInfoPage()
     {
+        usernameField.text = previewUserData.Username;
+        nameField.text = previewUserData.Name;
+
         errorText.gameObject.SetActive(false);
         profilePage.SetActive(false);
         editProfileInfoPage.SetActive(true);
@@ -104,6 +109,9 @@ public class ProfileUI : MonoBehaviour
 
     public void ShowEditPlayerPage()
     {
+        previewUserData.Username = usernameField.text;
+        previewUserData.Name = nameField.text;
+
         profilePage.SetActive(false);
         editProfileInfoPage.SetActive(false);
         editPlayerPage.SetActive(true);

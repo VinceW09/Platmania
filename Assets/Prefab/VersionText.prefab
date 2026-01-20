@@ -67,7 +67,9 @@ MonoBehaviour:
       m_Calls: []
   m_text: 'JANUARY 2026
 
-    VERSION: 0.7'
+    VERSION: 0.7.0.2
+
+'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: aede750aa7a241244ad65165e2714835, type: 2}
   m_sharedMaterial: {fileID: -2178217974513640489, guid: aede750aa7a241244ad65165e2714835, type: 2}
